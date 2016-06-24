@@ -1,7 +1,7 @@
 # Quickswitch i3
 
 Copy of `quickswitch-i3.py` in Rust. The main reason is speed; in Python, a
-small delay exists when lauching it, that cause if you type fast enough the
+small delay exists when launching it, that cause if you type fast enough the
 first one or two keypress after that to be ignored. The second reason is to
 learn Rust. Feel free to criticize.
 
