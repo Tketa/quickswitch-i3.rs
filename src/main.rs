@@ -201,9 +201,9 @@ fn main() {
     let dmenu_command = matches.value_of("dmenu").unwrap_or(DEFAULT_DMENU_COMMAND);
     println!("{:?}", dmenu_command);
 
-    if !matches.is_present("move") {
-        panic!("Not implemented");
-    }
+    // if !matches.is_present("move") {
+    //     panic!("Not implemented");
+    // }
 
     let mut connection = I3Connection::connect().unwrap();
 
@@ -216,9 +216,9 @@ fn main() {
             mapping.insert(w.name, Box::new(workspace));
         }
 
-    } else {
+    } else if matches.is_present("move") {
         let windows = get_windows_names(&mut connection);
-        let max_cname_size = max_class_name_size(&windows);
+        let max_cname_size = max_class_name_size(&windows) + 5;
 
         for w in windows {
             mapping.insert(w.pad_format(max_cname_size), Box::new(w));
@@ -237,7 +237,7 @@ fn main() {
         };
         connection.command(&format!("workspace {}", res));
 
-    } else {
+    } else if matches.is_present("move") {
         if let Some(res) = mapping.get(str_result.trim()) {
             let res = connection.command(&format!("{} move workspace current", res.to_select_string()));
             println!("{:?}", res)
