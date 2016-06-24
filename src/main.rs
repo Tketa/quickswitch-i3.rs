@@ -160,7 +160,6 @@ fn flatten_nodes(nodes: &[reply::Node]) -> Vec<&reply::Node> {
 fn exec_dmenu(exec: &str, options: &str) -> String {
     use std::io::prelude::*;
     let (program, args) = split_exec_args(exec);
-    println!("{} | {:?}", program, args);
     let cmd = Command::new(program)
         .args(&args)
         .stdin(Stdio::piped())
@@ -199,11 +198,6 @@ fn main() {
         .get_matches();
 
     let dmenu_command = matches.value_of("dmenu").unwrap_or(DEFAULT_DMENU_COMMAND);
-    println!("{:?}", dmenu_command);
-
-    // if !matches.is_present("move") {
-    //     panic!("Not implemented");
-    // }
 
     let mut connection = I3Connection::connect().unwrap();
 
@@ -240,7 +234,6 @@ fn main() {
     } else if matches.is_present("move") {
         if let Some(res) = mapping.get(str_result.trim()) {
             let res = connection.command(&format!("{} move workspace current", res.to_select_string()));
-            println!("{:?}", res)
         }
     }
 }
