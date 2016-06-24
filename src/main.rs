@@ -1,8 +1,6 @@
 use std::error::Error;
 use std::process::{Command, Stdio};
 
-use std::io::prelude::*;
-
 use std::collections::HashMap;
 
 extern crate i3ipc;
@@ -62,9 +60,56 @@ fn max_class_name_size(windows: &[Window]) -> usize {
 }
 
 fn split_exec_args(command: &str) -> (String, Vec<String>) {
-    let mut iter = command.split_whitespace();
-    let program = iter.next().unwrap().to_string();
-    let args = iter.map(|s| s.to_string()).collect::<Vec<_>>();
+    use std::fmt::Write;
+
+    let mut iter = command.chars();
+    let mut args = Vec::new();
+
+    let mut buf = String::new();
+
+    let mut skip = false;
+    let mut matching_char: Option<char> = None;
+
+    while let Some(ch) = iter.next() {
+        if skip {
+            skip = false;
+            continue;
+        }
+        match matching_char {
+            Some(mc) => {
+                match ch {
+                    '"' | '\'' => if mc == ch {
+                        args.push(buf.to_owned());
+                        buf = String::new();
+                        matching_char = None;
+                    } else {
+                        let b = &mut buf;
+                        b.write_char(ch).unwrap();
+                    },
+                    _ => {
+                        let b = &mut buf;
+                        b.write_char(ch).unwrap();
+                    },
+                }
+            }
+            None => {
+                match ch {
+                    ' ' => {
+                        args.push(buf.to_owned());
+                        buf = String::new();
+                    }
+                    '"' | '\'' => matching_char = Some(ch),
+                    '\\' => skip = true,
+                    _ => {
+                        let b = &mut buf;
+                        b.write_char(ch).unwrap();
+                    },
+                }
+            }
+        }
+    }
+
+    let program = args.remove(0);
 
     (program, args)
 }
@@ -113,7 +158,9 @@ fn flatten_nodes(nodes: &[reply::Node]) -> Vec<&reply::Node> {
 // [TODO]: Fix args splitting for subcommand - 2016-06-24 10:43
 // Currently, it simply split it at whitespace, which is wrong.
 fn exec_dmenu(exec: &str, options: &str) -> String {
+    use std::io::prelude::*;
     let (program, args) = split_exec_args(exec);
+    println!("{} | {:?}", program, args);
     let cmd = Command::new(program)
         .args(&args)
         .stdin(Stdio::piped())
