@@ -1,0 +1,10 @@
+[package]
+name = "quickswitch-i3"
+version = "0.1.0"
+authors = ["Akear <kazoomy@gmail.com>"]
+
+[dependencies.i3ipc]
+path = "/home/akear/work/perso/i3ipc-rs/"
+
+[dependencies]
+clap = "2"
